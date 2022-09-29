@@ -8,34 +8,31 @@ import static com.company.HangmanUtils.generateWord;
 
 public class Hangman {
 
-    private int lives = 10;
+    private int lives;
     private boolean game = true;
     private boolean playAgainMenu = false;
-    Display display = new Display();
+    private String[] guessArr;
+    private String[] solutionArr;
+    private final Scanner scanner = new Scanner(System.in);
+    private String word;
+    private final Display display = new Display();
+
 
     public void start() {
-        Scanner scanner = new Scanner(System.in);
 
-        String word = generateWord();
+        initialize();
         System.out.println("The word for this game is: " + word);
-        String[] guessArr = new String[word.length()];
-        Arrays.fill(guessArr, "_");
-
-
-        String[] solutionArr = word.split("").clone();
-
 
         display.startingMenu();
 
         while (game) {
             display.hangmanDrawing(lives);
             display.updatedResult(guessArr, lives);
-
             String letter = scanner.next().toUpperCase();
 
             // decrease lives if wrong answer
             if (!Arrays.toString(solutionArr).contains(letter)) {
-                lives--;
+                decreaseLives();
             }
 
             // Search and update the array
@@ -47,64 +44,57 @@ public class Hangman {
 
             // Check for win
             if (!Arrays.asList(guessArr).contains("_")) {
-
                 display.winningMessage();
 
+                // Play again?
                 playAgainMenu = true;
-
-                // Play again menu
-                while (playAgainMenu) {
-                    display.playAgainMessage();
-
-                    String input = scanner.next().toUpperCase(Locale.ROOT);
-                    if (input.contains("Y")) {
-
-                        word = generateWord();
-                        guessArr = new String[word.length()];
-                        Arrays.fill(guessArr, "_");
-
-                        solutionArr = word.split("").clone();
-
-
-                        lives = 10;
-                        playAgainMenu = false;
-                        System.out.println(word);
-                    } else if (input.contains("N")) {
-                        game = false;
-                        playAgainMenu = false;
-                    } else {
-                        display.invalidInput();
-                    }
-                }
+                playAgainMenu();
             }
 
             // Check for lose
             if (lives == 0) {
                 display.loosingMessage();
 
-                // Play again menu
+                // Play again?
                 playAgainMenu = true;
-                while (playAgainMenu) {
-                    display.playAgainMessage();
-
-                    String input = scanner.next().toUpperCase(Locale.ROOT);
-                    if (input.contains("Y")) {
-                        word = generateWord();
-                        guessArr = new String[word.length()];
-                        Arrays.fill(guessArr, "_");
-
-                        solutionArr = word.split("").clone();
-
-                        lives = 10;
-                        playAgainMenu = false;
-                    } else if (input.contains("N")) {
-                        game = false;
-                        playAgainMenu = false;
-                    } else {
-                        display.invalidInput();
-                    }
-                }
+                playAgainMenu();
             }
         }
+    }
+
+    private String[] emptyGuessArr(String word) {
+        String[] guessArr = new String[word.length()];
+        Arrays.fill(guessArr, "_");
+        return guessArr;
+    }
+
+    private void decreaseLives() {
+        lives--;
+    }
+
+    private void playAgainMenu() {
+        while (playAgainMenu) {
+            display.playAgainMessage();
+
+            String input = scanner.next().toUpperCase(Locale.ROOT);
+            if (input.contains("Y")) {
+                initialize();
+
+                playAgainMenu = false;
+                System.out.println(word);
+            } else if (input.contains("N")) {
+                game = false;
+                playAgainMenu = false;
+            } else {
+                display.invalidInput();
+            }
+        }
+    }
+
+    private void initialize () {
+        word = generateWord();
+        guessArr = emptyGuessArr(word);
+        solutionArr = word.split("").clone();
+        lives = 10;
     }
 }
