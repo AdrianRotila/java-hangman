@@ -3,7 +3,6 @@ package com.company;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Scanner;
-
 import static com.company.HangmanUtils.generateWord;
 
 public class Hangman {
@@ -17,12 +16,9 @@ public class Hangman {
     private String word;
     private final Display display = new Display();
 
-
     public void start() {
-
         initialize();
         System.out.println("The word for this game is: " + word);
-
         display.startingMenu();
 
         while (game) {
@@ -31,16 +27,10 @@ public class Hangman {
             String letter = scanner.next().toUpperCase();
 
             // decrease lives if wrong answer
-            if (!Arrays.toString(solutionArr).contains(letter)) {
-                decreaseLives();
-            }
+            decreaseLives(solutionArr, letter);
 
             // Search and update the array
-            for (int i = 0; i < word.length(); i++) {
-                if (solutionArr[i].contains(letter)) {
-                    guessArr[i] = letter;
-                }
-            }
+            updateArray(letter);
 
             // Check for win
             if (!Arrays.asList(guessArr).contains("_")) {
@@ -68,8 +58,18 @@ public class Hangman {
         return guessArr;
     }
 
-    private void decreaseLives() {
-        lives--;
+    private void decreaseLives(String[] solutionArr, String letter) {
+        if (!Arrays.toString(solutionArr).contains(letter)) {
+            lives--;
+        }
+    }
+
+    private void updateArray(String letter) {
+        for (int i = 0; i < word.length(); i++) {
+            if (solutionArr[i].contains(letter)) {
+                guessArr[i] = letter;
+            }
+        }
     }
 
     private void playAgainMenu() {
